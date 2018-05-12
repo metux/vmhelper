@@ -1,0 +1,4 @@
+directories:
+    iso-images:  "iso-images"
+    vm-images:   "vm-images"
+    temp:        "tmp"

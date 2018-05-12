@@ -15,12 +15,12 @@ disks:
     size: 8G
 
 installer:
-    type:                   "debian"
-    iso-url:                "https://files.devuan.org/devuan_jessie/installer-iso/devuan_jessie_1.0.0_i386_NETINST.iso"
-    iso:                    "debian-testing-i386-netinst.iso"
+    type:                       "debian"
+    iso-url:                    "https://files.devuan.org/devuan_jessie/installer-iso/devuan_jessie_1.0.0_i386_NETINST.iso"
+    iso:                        "debian-testing-i386-netinst.iso"
 #    kernel:     "cdrom:/install.i386/vmlinuz"
 #    initrd:     "cdrom:/install.i386/initrd.gz"
-    kernel:                 "vm-images/test2/vmlinuz"
-    initrd:                 "vm-images/test2/initrd.gz"
-    deb/mirror-hostname:    "auto.mirror.devuan.org"
-    deb/mirror-directory:   "/merged"
+    kernel:                     "conf/vm-images/test2/vmlinuz"
+    initrd:                     "vm-images/test2/initrd.gz"
+    deb/mirror/http/hostname:   "auto.mirror.devuan.org"
+    deb/mirror/http/directory:  "/merged"

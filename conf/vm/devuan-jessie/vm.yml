@@ -5,8 +5,8 @@ kvm:        yes
 hostname:   debian-3
 domain:     foo.org
 locale:     "de_DE"
-keymap:     "de-latin1"
-timezone:   "Berlin"
+#keymap:     "de-latin1"
+keymap:     "de"
 ntp-server: "ntp.example.com"
 
 disks:
@@ -16,11 +16,13 @@ disks:
     size: 8G
 
 installer:
-    type:       debian
-    iso-url:    https://files.devuan.org/devuan_jessie/installer-iso/devuan_jessie_1.0.0_i386_NETINST.iso
-    iso:        devuan_jessie_1.0.0_i386_NETINST.iso
-    kernel:     "vm-images/devuan-jessie/vmlinuz"
-    initrd:     "vm-images/devuan-jessie/initrd.gz"
-    preseed:                preseed.cfg
-    deb/mirror-hostname:    "auto.mirror.devuan.org"
-    deb/mirror-directory:   "/merged"
+    type:                        debian
+    iso-url:                     https://files.devuan.org/devuan_jessie/installer-iso/devuan_jessie_1.0.0_i386_NETINST.iso
+    iso:                         devuan_jessie_1.0.0_i386_NETINST.iso
+    kernel:                      "conf/vm/devuan-jessie/vmlinuz"
+    initrd:                      "conf/vm/devuan-jessie/initrd.gz"
+    preseed:                     preseed.cfg
+    timezone:                    "Berlin"
+    deb/mirror/http/hostname:    "auto.mirror.devuan.org"
+    deb/mirror/http/directory:   "/merged"
+    deb/keyboard/layout:         "de"

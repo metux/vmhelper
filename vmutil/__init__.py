@@ -5,6 +5,7 @@ import vmqemu
 import util
 import vminstaller
 import vmconfig
+import globalconf
 
 KernelParam      = kernelparam.KernelParam
 CmdLine          = cmdline.CmdLine
@@ -17,3 +18,4 @@ flatten          = util.flatten
 VmQemu           = vmqemu.VmQemu
 VmConfig         = vmconfig.VmConfig
 getInstaller     = vminstaller.getInstaller
+GlobalConfig     = globalconf.GlobalConfig

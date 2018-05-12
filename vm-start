@@ -1,7 +1,0 @@
-#!/usr/bin/python
-
-from vmutil import VmConfig
-
-vm = VmConfig("devuan-jessie")
-#vm.start()
-vm.installer.run()

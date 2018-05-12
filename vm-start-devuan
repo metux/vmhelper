@@ -1,0 +1,4 @@
+#!/usr/bin/python
+
+from vmutil import GlobalConfig
+GlobalConfig("conf").get_vm("devuan-jessie").start()

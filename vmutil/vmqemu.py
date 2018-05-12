@@ -15,7 +15,10 @@ class VmQemu:
         cmd.opt_arg('-initrd',    self.vm.get_property('initrd'))
         cmd.opt_arg('-append',    self.vm.get_property('append'))
         cmd.opt_arg('-dtb',       self.vm.get_property('dtb'))
+        cmd.opt_arg('-k',         self.vm.get_property('keymap'))
         cmd.opt_sw('-enable-kvm', self.vm.get_property_bool('kvm'))
+
+        print "keymap:"+self.vm.get_property('keymap')
 
         return cmd.args
 

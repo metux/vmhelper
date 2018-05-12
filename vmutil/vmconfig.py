@@ -5,23 +5,22 @@ from vmconfigdisk import VmConfigDisk
 from vmqemu import VmQemu
 from vminstaller import getInstaller
 
-class VmConfig:
+class VmConfig(object):
 
-    def __init__(self, name):
-        self.load_vm_cf(name)
-        self.hv = VmQemu(self)
+    def __init__(self, conf, name):
+        self.conf = conf
+        self.vm_path = conf.vm_conf_prefix+"/"+name+"/"
+        self.vm_cf = self.vm_path+"vm.yml"
 
-    def load(self, fn, name):
-        with open(fn) as text:
-            self._my_cf = yaml.safe_load(text)
-        self.vm_path="conf/vm/"+name
+        with open(self.vm_cf) as text:
+            self.spec = yaml.safe_load(text)
+
         self.disks = {}
-        for d in self._my_cf['disks']:
+        for d in self.spec['disks']:
             self.add_disk(VmConfigDisk(d, self))
-        self.installer = getInstaller(self._my_cf['installer'], self)
+        self.installer = getInstaller(self.spec['installer'], self)
 
-    def load_vm_cf(self, name):
-        self.load("conf/vm/"+name+"/vm.yml", name)
+        self.hv = VmQemu(self)
 
     def add_disk(self, dsk):
         self.disks[dsk.get_name()] = dsk
@@ -36,15 +35,15 @@ class VmConfig:
         else:
             return dsk.get_image_file()
 
-    def get_property_bool(self, pr):
-        return get_opt_bool(self._my_cf, pr)
+    def get_property_bool(self, key):
+        return get_opt_bool(self.spec, key)
 
-    def get_property(self, pr):
-        return get_opt(self._my_cf, pr)
+    def get_property(self, key):
+        return get_opt(self.spec, key)
 
-    def set_property(self, pr, val):
-        if val is not None:
-            self._my_cf[pr] = val
+    def set_property(self, key, value):
+        if value is not None:
+            self.spec[key] = value
 
     def init_diskimages(self):
         dsk = self.find_disk("disk0")
