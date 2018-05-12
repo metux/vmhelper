@@ -14,14 +14,14 @@ class VmConfig:
     def load(self, fn, name):
         with open(fn) as text:
             self._my_cf = yaml.safe_load(text)
-        self.vm_path="vm-images/"+name
+        self.vm_path="conf/vm/"+name
         self.disks = {}
         for d in self._my_cf['disks']:
             self.add_disk(VmConfigDisk(d, self))
         self.installer = getInstaller(self._my_cf['installer'], self)
 
     def load_vm_cf(self, name):
-        self.load("vm-images/"+name+"/vm.yml", name)
+        self.load("conf/vm/"+name+"/vm.yml", name)
 
     def add_disk(self, dsk):
         self.disks[dsk.get_name()] = dsk
