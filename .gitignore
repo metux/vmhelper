@@ -1,0 +1,5 @@
+*.pyc
+iso-images
+*.img
+*.raw
+tmp
