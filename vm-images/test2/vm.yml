@@ -1,0 +1,26 @@
+---
+name:       test2
+arch:       i386
+memory:     1G
+kvm:        yes
+hostname:   debian-2
+domain:     foo.org
+locale:     "de_DE"
+keymap:     "de-latin1"
+
+disks:
+  - type: raw-image
+    name: disk0
+    file: disk000.raw
+    size: 8G
+
+installer:
+    type:                   "debian"
+    iso-url:                "https://files.devuan.org/devuan_jessie/installer-iso/devuan_jessie_1.0.0_i386_NETINST.iso"
+    iso:                    "debian-testing-i386-netinst.iso"
+#    kernel:     "cdrom:/install.i386/vmlinuz"
+#    initrd:     "cdrom:/install.i386/initrd.gz"
+    kernel:                 "vm-images/test2/vmlinuz"
+    initrd:                 "vm-images/test2/initrd.gz"
+    deb/mirror-hostname:    "auto.mirror.devuan.org"
+    deb/mirror-directory:   "/merged"

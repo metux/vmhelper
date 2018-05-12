@@ -1,0 +1,18 @@
+---
+name:    test1
+arch:    x86_64
+bootdev: cdrom
+memory:  1G
+kvm:     yes
+disks:
+  - type: raw-image
+    name: disk0
+    file: disk000.raw
+    size: 8G
+  - type: iso-image
+    name: cdrom0
+    file: debian-live-9.4.0-amd64-xfce.iso
+  - type: iso-image
+    name: cdrom1
+    file: debian-testing-i386-netinst.iso
+    url:  http://cdimage.debian.org/cdimage/daily-builds/daily/arch-latest/i386/iso-cd/debian-testing-i386-netinst.iso

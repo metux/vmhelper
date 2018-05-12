@@ -3,3 +3,5 @@ iso-images
 *.img
 *.raw
 tmp
+vmlinuz
+initrd.gz
