@@ -1,6 +1,4 @@
 import yaml
-from util import get_opt
-from util import get_opt_bool
 from vmconfig import VmConfig
 from configbase import ConfigBase
 
@@ -12,3 +10,9 @@ class GlobalConfig(ConfigBase):
 
     def get_vm(self, name):
         return VmConfig(self, name)
+
+    def get_iso_path(self):
+        return self.spec['directories']['iso-images']
+
+    def get_tmpdir(self):
+        return self.spec['directories']['temp']

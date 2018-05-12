@@ -1,23 +1,24 @@
 import yaml
-from util import get_opt
-from util import get_opt_bool
-from vmconfigdisk import VmConfigDisk
+from util import get_opt, get_opt_bool, mkdir
+from configbase import ConfigBase
+from disk import getDisk
 from vmqemu import VmQemu
 from vminstaller import getInstaller
 
-class VmConfig(object):
+class VmConfig(ConfigBase):
 
     def __init__(self, conf, name):
-        self.conf = conf
+        self.conf    = conf
+        self.name    = name
         self.vm_path = conf.vm_conf_prefix+"/"+name+"/"
-        self.vm_cf = self.vm_path+"vm.yml"
+        self.vm_cf   = self.vm_path+"vm.yml"
 
         with open(self.vm_cf) as text:
             self.spec = yaml.safe_load(text)
 
         self.disks = {}
         for d in self.spec['disks']:
-            self.add_disk(VmConfigDisk(d, self))
+            self.add_disk(getDisk(d, self))
         self.installer = getInstaller(self.spec['installer'], self)
 
         self.hv = VmQemu(self)
@@ -58,3 +59,8 @@ class VmConfig(object):
     def start(self):
         self.setup()
         self.hv.start()
+
+    def get_tmpdir(self):
+        dn = self.conf.get_tmpdir()+"/vm/"+self.name
+        mkdir(dn)
+        return dn

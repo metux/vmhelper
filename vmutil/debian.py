@@ -1,7 +1,6 @@
 class DebianPreseed(object):
     def __init__(self, fn, db = {} ):
         self.fn = fn
-        self.fp = open(fn, 'w+')
         self.db = db
 
     """Set preseed value. must already be defined in db. skips None values"""
@@ -23,23 +22,21 @@ class DebianPreseed(object):
             for name, v2 in v1.iteritems():
                 self._add(cat, name, v2[0], v2[1])
 
-    def write_db(self):
+#    def di_str(self, name, value):
+#        self._add("d-i", name, "string", value)
+
+#    def di_str_list(self, lst):
+#        for pn, pv in lst.iteritems():
+#            self.di_str(pn, pv)
+
+    def finish(self):
+        fp = open(fn, 'w+')
         for cat, v1 in self.db.iteritems():
             for name, v2 in v1.iteritems():
                 if v2[1] is not None:
-                    s = "%-18s %-44s %-10s %s\n" % (cat,name,v2[0],v2[1])
-                    self.fp.write(s)
-
-    def di_str(self, name, value):
-        self._add("d-i", name, "string", value)
-
-    def di_str_list(self, lst):
-        for pn, pv in lst.iteritems():
-            self.di_str(pn, pv)
-
-    def finish(self):
-        self.write_db()
-        self.fp.close()
+                    s = "%-22s %-44s %-10s %s\n" % (cat,name,v2[0],v2[1])
+                    fp.write(s)
+        fp.close()
 
     def set_keymap(self, keymap):
         self.set('d-i', 'keymap',                            keymap)

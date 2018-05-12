@@ -12,7 +12,7 @@ ntp-server: "ntp.example.com"
 disks:
   - type: raw-image
     name: disk0
-    file: disk000.raw
+#    file: disk0.raw
     size: 8G
 
 installer:

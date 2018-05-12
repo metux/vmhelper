@@ -1,6 +1,6 @@
-from util import get_opt
+from util import get_opt, mkdir
 from kernelparam import KernelParam
-from vmconfigdisk import VmConfigDisk
+from disk import getDisk
 from subprocess import call
 from subprocess import Popen, PIPE, STDOUT
 from debian import DebianPreseed
@@ -21,9 +21,12 @@ class VmInstallerBase(object):
             'name': 'cdrom0',
             'file': self.spec['iso']
         }
-        self.vm.add_disk(VmConfigDisk(dsk, self.vm))
+        self.vm.add_disk(getDisk(dsk, self.vm))
         self.vm.set_property('bootdev', 'cdrom0')
         self.cdrom_image = self.spec['iso']
+
+        if mount:
+            print "mouting iso ..."
 
     def run(self):
         self.initVM()
@@ -116,19 +119,17 @@ class VmInstallerDebian(VmInstallerBase):
         }
 
     def write_preseed(self, tmpdir):
-        pr = DebianPreseed(tmpdir+'/preseed.cfg', self.preseed_list)
+        p = DebianPreseed(tmpdir+'/preseed.cfg', self.preseed_list)
 
-        pr.set_timezone(self.get_property('timezone'))
-        pr.set_http_mirror(self.get_property('deb/mirror/http/hostname'), self.get_property('deb/mirror/http/directory'))
-        pr.set_keymap(self.get_property('deb/keyboard/layout'))
+        p.set_timezone(self.get_property('timezone'))
+        p.set_http_mirror(self.get_property('deb/mirror/http/hostname'), self.get_property('deb/mirror/http/directory'))
+        p.set_keymap(self.get_property('deb/keyboard/layout'))
 
-        pr.finish()
+        p.finish()
 
     def prepare_initrd(self):
         # create preseed.cfg
-        tmpdir = 'tmp'
-        call(['mkdir', '-p', tmpdir])
-
+        tmpdir = self.vm.get_tmpdir()
         self.write_preseed(tmpdir)
 
         # prepare initrd

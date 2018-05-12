@@ -1,5 +1,6 @@
 import re
 from os import path
+from subprocess import call
 
 def parse_size(sz):
     if isinstance(sz,int):
@@ -50,3 +51,8 @@ def flatten(param):
         return buf
     else:
         return buf
+
+def mkdir(dn):
+    if dn is None:
+        print "mkdir called w/ none"
+    call(["mkdir", "-p", dn])
