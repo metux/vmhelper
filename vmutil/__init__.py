@@ -5,6 +5,7 @@ import util
 import vminstaller
 import vmconfig
 import globalconf
+import gz
 
 #KernelParam      = kernelparam.KernelParam
 #CmdLine          = cmdline.CmdLine

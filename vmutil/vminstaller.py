@@ -4,6 +4,7 @@ from subprocess import call
 from subprocess import Popen, PIPE, STDOUT
 from debian import DebianPreseed
 from configbase import ConfigBase
+import gz
 
 class VmInstallerBase(ConfigBase):
     def __init__(self, spec, vm):
@@ -11,20 +12,37 @@ class VmInstallerBase(ConfigBase):
         self.vm = vm
 
     """Prepare the installer cdrom image. optionally mount it"""
-    def prepare_cdrom(self, mount=False):
+    def prepare_cdrom(self):
         # add the boot cdrom
         disk = self.vm.add_disk_spec({
                 'type': 'iso-image',
                 'name': 'cdrom0',
-                'file': self.get_property('iso'),
-                'url' : self.get_property('url'),
+                'file': self.get_property('cdrom/iso'),
+                'url' : self.get_property('cdrom/url'),
             })
         disk.init_image()
         self.vm.set_property('bootdev', 'cdrom0')
         self.cdrom_image = disk.get_image_file()
 
-        if mount:
-            print "mouting iso ..."
+    """extract a file from cdrom image"""
+    def cdrom_extract(self, fn, out):
+        print "Extracting cdrom file \""+fn+"\" to \""+out+"\""
+        output = open(out, "w")
+        p = Popen(["isoinfo", "-i", self.cdrom_image, "-x", fn], stdout=output)
+        print p.communicate()
+        return out
+
+    """make a temp copy of initrd, either from cdrom or directly specified file"""
+    def copy_initrd(self):
+        initrd_cdrom = self.get_property('cdrom/initrd')
+        initrd_gz_tmp = self.vm.get_tmpdir()+"/initrd.gz"
+        if initrd_cdrom is None:
+            initrd_gz_src = self.get_property('initrd')
+            call(["cp", initrd_gz_src, initrd_gz_tmp])
+            call(["chmod", "u+rw", initrd_gz_tmp])
+        else:
+            self.cdrom_extract(initrd_cdrom, initrd_gz_tmp)
+        return initrd_gz_tmp
 
     def run(self):
         self.initVM()
@@ -34,7 +52,7 @@ class VmInstallerDebian(VmInstallerBase):
     def __init__(self, spec, vm):
         VmInstallerBase.__init__(self, spec, vm)
 
-        # default kernel parameters
+        """ default kernel parameters """
         self.std_kparm = {
             'vga':                       'normal',
             'fb':                        'false',
@@ -47,16 +65,16 @@ class VmInstallerDebian(VmInstallerBase):
             'country':                   'DE',
         }
 
-        # maps our properties to kernel parameters
+        """ maps our properties to kernel parameters """
         self.vm_kparm = {
             'hostname': 'hostname',
             'domain':   'domain',
             'locale':   'locale',
         }
 
-        # NOTE: all the keys here need to be present for calling set() on them,
-        # in order to have their type. Keys w/ None value will be omitted in
-        # the final preseed file.
+        """ NOTE: all the keys here need to be present for calling set() on them,
+            in order to have their type. Keys w/ None value will be omitted in
+            the final preseed file."""
         self.preseed_list = {
             'popularity-contest': {
                 'popularity-contest/participate':               [ 'boolean',     'false'               ],
@@ -125,23 +143,34 @@ class VmInstallerDebian(VmInstallerBase):
         p.finish()
 
     def prepare_initrd(self):
-        # create preseed.cfg
         tmpdir = self.vm.get_tmpdir()
+
+        # create preseed.cfg
         self.write_preseed(tmpdir)
 
-        # prepare initrd
-        initrd_src = self.get_property('initrd')
+        # fetch and uncompress initrd
         initrd_tmp = tmpdir+"/initrd"
-        initrd_tmpgz = initrd_tmp+".gz"
+        initrd_gz_tmp = self.copy_initrd()
+        gz.uncompress(initrd_gz_tmp)
 
-        call(["cp", initrd_src, tmpdir+'/initrd.gz'])
-        call(["gunzip", "-f", tmpdir+'/initrd.gz'])
-
+        # add preseed.cfg
         p = Popen(['cpio', '-H', 'newc', '-o', '-A', '-F', 'initrd'], stdout=PIPE, stdin=PIPE, stderr=STDOUT, cwd=tmpdir)
         print p.communicate(input=b'preseed.cfg\n')[0].decode()
-        call(["gzip", "-f", initrd_tmp])
 
-        self.vm.set_property('initrd', initrd_tmpgz)
+        # compress modified initrd
+        gz.compress(initrd_tmp)
+        self.vm.set_property('initrd', initrd_gz_tmp)
+
+    def kernel_img_tmp(self):
+        return self.vm.get_tmpdir()+"/vmlinuz"
+
+    def prepare_kernel(self):
+        kernel_cdrom = self.get_property('cdrom/kernel')
+        if kernel_cdrom is None:
+            self.vm.set_property('kernel', self.get_property('kernel'))
+            return
+
+        self.vm.set_property('kernel', self.cdrom_extract(kernel_cdrom, self.kernel_img_tmp()))
 
     def initVM(self):
         self.prepare_cdrom()
@@ -156,7 +185,8 @@ class VmInstallerDebian(VmInstallerBase):
         # add default values
         self.kernel_param.add_list(self.std_kparm)
 
-        self.vm.set_property('kernel', self.get_property('kernel'))
+        self.prepare_kernel()
+
         self.vm.set_property('append', self.kernel_param.__str__())
         self.vm.set_property('dtb', self.get_property('dtb'))
         self.vm.init_diskimages()
