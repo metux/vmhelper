@@ -2,13 +2,15 @@
 arch:       i386
 memory:     1G
 kvm:        yes
-hostname:   dng2
+hostname:   debian-3
 domain:     foo.org
 locale:     "de_DE"
+#keymap:     "de-latin1"
 keymap:     "de"
 ntp-server: "ntp.example.com"
 
 init-root-passwd:   "root"
+init-root-login:    true
 init-admin-user:    foo
 init-admin-passwd:  foo
 

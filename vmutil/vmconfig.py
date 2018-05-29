@@ -18,13 +18,18 @@ class VmConfig(ConfigBase):
 
         self.disks = {}
         for d in self.spec['disks']:
-            self.add_disk(getDisk(d, self))
+            self.add_disk_spec(d)
         self.installer = getInstaller(self.spec['installer'], self)
 
         self.hv = VmQemu(self)
 
     def add_disk(self, dsk):
         self.disks[dsk.get_name()] = dsk
+        return dsk
+
+    """add a disk by config spec"""
+    def add_disk_spec(self, dsk):
+        return self.add_disk(getDisk(dsk, self))
 
     def find_disk(self, name):
         return get_opt(self.disks, name)
@@ -35,16 +40,6 @@ class VmConfig(ConfigBase):
             return dsk
         else:
             return dsk.get_image_file()
-
-    def get_property_bool(self, key):
-        return get_opt_bool(self.spec, key)
-
-    def get_property(self, key):
-        return get_opt(self.spec, key)
-
-    def set_property(self, key, value):
-        if value is not None:
-            self.spec[key] = value
 
     def init_diskimages(self):
         dsk = self.find_disk("disk0")

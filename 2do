@@ -1,2 +1,6 @@
-* automatic image creation
-* fetch iso images
+[x] fetch iso images
+[x] put passwd etc into yml
+[ ] move dist/installer config to extra files
+[ ] network config
+[ ] unpack kernel/initrd from ISO
+[ ] catch serial console

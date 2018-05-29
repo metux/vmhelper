@@ -1,4 +1,5 @@
 directories:
-    iso-images:  "iso-images"
-    vm-images:   "vm-images"
-    temp:        "tmp"
+    iso-images:      "iso-images"
+    iso-mountpoints: "/mnt/vmutil-iso/"
+    vm-images:       "vm-images"
+    temp:            "tmp"

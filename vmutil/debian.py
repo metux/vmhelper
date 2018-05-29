@@ -8,6 +8,11 @@ class DebianPreseed(object):
         if value is not None:
             self.db[cat][name][1] = value
 
+    """Set preseed value w/ type. skips None values"""
+    def setx(self, cat, name, typ, value):
+        if value is not None:
+            self.db[cat][name] = [ typ, value ]
+
     def _add(self, cat, name, t, value, dflt = None):
         if cat not in self.db:
             self.db[cat] = {}
@@ -22,15 +27,8 @@ class DebianPreseed(object):
             for name, v2 in v1.iteritems():
                 self._add(cat, name, v2[0], v2[1])
 
-#    def di_str(self, name, value):
-#        self._add("d-i", name, "string", value)
-
-#    def di_str_list(self, lst):
-#        for pn, pv in lst.iteritems():
-#            self.di_str(pn, pv)
-
     def finish(self):
-        fp = open(fn, 'w+')
+        fp = open(self.fn, 'w+')
         for cat, v1 in self.db.iteritems():
             for name, v2 in v1.iteritems():
                 if v2[1] is not None:
@@ -49,3 +47,17 @@ class DebianPreseed(object):
 
     def set_timezone(self, tz):
         self.set('d-i', 'time/zone',                         tz)
+
+    def set_root_passwd(self, pw):
+        if pw is not None:
+            self.setx('d-i', "passwd/root-login",             'boolean',  'true')
+            self.setx('d-i', "passwd/root-password",          'password', pw)
+            self.setx('d-i', "passwd/root-password-again",    'password', pw)
+
+    def set_admin_user(self, name, pw):
+        if (name is not None) and (pw is not None):
+            self.setx('d-i', "passwd/make-user",              'boolean',  'true')
+            self.setx('d-i', 'passwd/user-password',          'password', pw)
+            self.setx('d-i', 'passwd/user-password-again',    'password', pw)
+            self.setx('d-i', 'passwd/username',               'string',   name)
+            self.setx('d-i', 'passwd/user-fullname',          'string',   name)

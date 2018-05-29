@@ -1,29 +1,27 @@
 from util import get_opt, mkdir
 from kernelparam import KernelParam
-from disk import getDisk
 from subprocess import call
 from subprocess import Popen, PIPE, STDOUT
 from debian import DebianPreseed
+from configbase import ConfigBase
 
-class VmInstallerBase(object):
+class VmInstallerBase(ConfigBase):
     def __init__(self, spec, vm):
         self.spec = spec
         self.vm = vm
 
-    def get_property(self, pr):
-        return get_opt(self.spec, pr)
-
     """Prepare the installer cdrom image. optionally mount it"""
     def prepare_cdrom(self, mount=False):
         # add the boot cdrom
-        dsk = {
-            'type': 'iso-image',
-            'name': 'cdrom0',
-            'file': self.spec['iso']
-        }
-        self.vm.add_disk(getDisk(dsk, self.vm))
+        disk = self.vm.add_disk_spec({
+                'type': 'iso-image',
+                'name': 'cdrom0',
+                'file': self.get_property('iso'),
+                'url' : self.get_property('url'),
+            })
+        disk.init_image()
         self.vm.set_property('bootdev', 'cdrom0')
-        self.cdrom_image = self.spec['iso']
+        self.cdrom_image = disk.get_image_file()
 
         if mount:
             print "mouting iso ..."
@@ -35,21 +33,30 @@ class VmInstallerBase(object):
 class VmInstallerDebian(VmInstallerBase):
     def __init__(self, spec, vm):
         VmInstallerBase.__init__(self, spec, vm)
+
+        # default kernel parameters
         self.std_kparm = {
-            'vga':              'normal',
-            'fb':               'false',
-            'recommends':       'false',
-            'modules':          'openssh-client-udeb',
-            'DEBIAN_FRONTEND':  'text',
+            'vga':                       'normal',
+            'fb':                        'false',
+            'recommends':                'false',
+            'modules':                   'openssh-client-udeb',
+            'DEBIAN_FRONTEND':           'text',
+            'console':                   'ttyS0',
+
+            'debian-installer/language': 'en',
+            'country':                   'DE',
         }
 
+        # maps our properties to kernel parameters
         self.vm_kparm = {
-            'hostname':               'hostname',
-            'domain':                 'domain',
-            'locale':                 'locale',
-#            'clock-setup/ntp-server': 'ntp-server',
+            'hostname': 'hostname',
+            'domain':   'domain',
+            'locale':   'locale',
         }
 
+        # NOTE: all the keys here need to be present for calling set() on them,
+        # in order to have their type. Keys w/ None value will be omitted in
+        # the final preseed file.
         self.preseed_list = {
             'popularity-contest': {
                 'popularity-contest/participate':               [ 'boolean',     'false'               ],
@@ -60,16 +67,6 @@ class VmInstallerDebian(VmInstallerBase):
                 'mirror/http/proxy':                            [ 'string',      ''                    ],
                 'mirror/http/hostname':                         [ 'string',      None,                 ],
                 'mirror/http/directory':                        [ 'string',      None,                 ],
-
-                # initial user/pw
-                'passwd/root-login':                            [ 'boolean',     'true'                ],
-                'passwd/make-user':                             [ 'boolean',     'true'                ],
-                'passwd/root-password':                         [ 'password',    'knollo123'           ],
-                'passwd/root-password-again':                   [ 'password',    'knollo123'           ],
-                'passwd/user-fullname':                         [ 'string',      'adminit'             ],
-                'passwd/username':                              [ 'string',      'adminit'             ],
-                'passwd/user-password':                         [ 'password',    'knollo123'           ],
-                'passwd/user-password-again':                   [ 'password',    'knollo123'           ],
 
                 # automatic partitioning
                 'partman-auto/init_automatically_partition':    [ 'select',      'biggest_free'        ],
@@ -120,11 +117,11 @@ class VmInstallerDebian(VmInstallerBase):
 
     def write_preseed(self, tmpdir):
         p = DebianPreseed(tmpdir+'/preseed.cfg', self.preseed_list)
-
         p.set_timezone(self.get_property('timezone'))
         p.set_http_mirror(self.get_property('deb/mirror/http/hostname'), self.get_property('deb/mirror/http/directory'))
         p.set_keymap(self.get_property('deb/keyboard/layout'))
-
+        p.set_root_passwd(self.vm.get_property('init-root-passwd'))
+        p.set_admin_user(self.vm.get_property('init-admin-user'), self.vm.get_property('init-admin-passwd'))
         p.finish()
 
     def prepare_initrd(self):
@@ -164,6 +161,8 @@ class VmInstallerDebian(VmInstallerBase):
         self.vm.set_property('dtb', self.get_property('dtb'))
         self.vm.init_diskimages()
         self.prepare_initrd()
+
+        print "APPEND:"+self.vm.get_property('append')
 
 installers = {
     'debian-netinst': VmInstallerDebian,
