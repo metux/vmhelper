@@ -16,3 +16,6 @@ disks:
     name: cdrom1
     file: debian-testing-i386-netinst.iso
     url:  http://cdimage.debian.org/cdimage/daily-builds/daily/arch-latest/i386/iso-cd/debian-testing-i386-netinst.iso
+
+installer:
+    template: debian-testing-i386-netinst

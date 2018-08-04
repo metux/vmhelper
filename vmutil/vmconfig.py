@@ -19,6 +19,14 @@ class VmConfig(ConfigBase):
         self.disks = {}
         for d in self.spec['disks']:
             self.add_disk_spec(d)
+
+        # process installer template
+        if ('installer' in self.spec) and ('template' in self.spec['installer']):
+            installer_tmpl = conf.get_installer_tmpl(self.spec['installer']['template'])
+            for attr in installer_tmpl:
+                if attr not in  self.spec:
+                    self.spec['installer'][attr] = installer_tmpl[attr]
+
         self.installer = getInstaller(self.spec['installer'], self)
 
         self.hv = VmQemu(self)

@@ -1,0 +1,23 @@
+---
+name:       "debian-testing"
+arch:       "x86_64"
+memory:     "1G"
+kvm:        "yes"
+hostname:   "debian-testing"
+domain:     "foo.org"
+locale:     "de_DE"
+keymap:     "de"
+ntp-server: "ntp.example.com"
+
+init-root-passwd:  "root"
+init-admin-user:   "foo"
+init-admin-passwd: "foo"
+
+disks:
+  - type: raw-image
+    name: disk0
+    file: disk000.raw
+    size: 8G
+
+installer:
+    template: debian-testing-i386-netinst

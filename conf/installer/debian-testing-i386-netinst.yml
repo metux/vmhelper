@@ -1,0 +1,10 @@
+---
+type:                       "debian"
+cdrom/iso:                  "debian-testing-i386-netinst.iso"
+cdrom/url:                  "http://cdimage.debian.org/cdimage/daily-builds/daily/arch-latest/i386/iso-cd/debian-testing-i386-netinst.iso"
+cdrom/kernel:               "/INSTALL.386/VMLINUZ.;1"
+cdrom/initrd:               "/INSTALL.386/INITRD.GZ;1"
+timezone:                   "Berlin"
+#deb/mirror/http/hostname:   "auto.mirror.devuan.org"
+#deb/mirror/http/directory:  "/merged"
+deb/keyboard/layout:        "de"

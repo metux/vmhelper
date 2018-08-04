@@ -20,12 +20,4 @@ disks:
     size: 8G
 
 installer:
-    type:                        "debian"
-    cdrom/iso:                   "devuan_jessie_1.0.0_i386_NETINST.iso"
-    cdrom/url:                   "https://files.devuan.org/devuan_jessie/installer-iso/devuan_jessie_1.0.0_i386_NETINST.iso"
-    cdrom/kernel:                "/INSTALL.386/VMLINUZ.;1"
-    cdrom/initrd:                "/INSTALL.386/INITRD.GZ;1"
-    timezone:                    "Berlin"
-    deb/mirror/http/hostname:    "auto.mirror.devuan.org"
-    deb/mirror/http/directory:   "/merged"
-    deb/keyboard/layout:         "de"
+    template: "devuan-jessie-i386-netinst"

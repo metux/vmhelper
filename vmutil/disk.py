@@ -49,11 +49,6 @@ class DiskISO(Disk):
     def get_image_file(self):
         return self.vm.conf.get_iso_path()+"/"+self.get_property('file')
 
-#    def get_mountpoint(self):
-
-#    def mount(self):
-#        iso = self.get_image_file(self)
-#        name 
     def init_image(self):
         iso_fn  = self.get_image_file()
         iso_url = self.get_property('url')
