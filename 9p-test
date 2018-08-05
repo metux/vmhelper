@@ -1,17 +1,32 @@
 #!/bin/bash
 
-KERNEL=/mnt/vmvol0/tmp/vm/devuan-jessie/vmlinuz
+#QEMU=qemu-system-x86_64
+QEMU=qemu-system-i386
+
+#KERNEL=/mnt/vmvol0/tmp/vm/devuan-jessie/vmlinuz
+KERNEL=linuximage
 ROOT=/var/chroot/devuan
 INITRD=/mnt/vmvol0/tmp/vm/devuan-jessie/initrd.gz
+CONSOLE=ttyS0
+#CONSOLE=hvc0
+INIT=/sh
 
-qemu-system-x86_64 \
+#PARAM_INITRD="-initrd $INITRD"
+
+$QEMU \
     -enable-kvm \
     -kernel $KERNEL \
-    -initrd $INITRD \
+    $PARAM_INITRD \
     -fsdev local,id=root9p,path=$ROOT,security_model=mapped \
-    -device virtio-9p-pci,fsdev=root9p,mount_tag=root9p \
-    -append 'root=root9p rw rootfstype=9p rootflags=trans=virtio console=ttyS0'
+    -device virtio-9p-pci,fsdev=root9p,mount_tag=/dev/root \
+    -fsdev local,id=npx,path=$ROOT,security_model=mapped \
+    -device virtio-9p-pci,fsdev=npx,mount_tag=npx \
+    -append "root=root9p rw rootfstype=9p rootflags=debug=0x04,trans=virtio,version=9p2000.L console=$CONSOLE init=$INIT" \
+    -serial mon:stdio \
+    -nographic
 
+#    -console virtio \
+#    -append "console=ttyS0" \
 #    -append 'root=root9p rw rootfstype=9p rootflags=trans=virtio console=ttyS0'
 #    -initrd /vmroot/trusty/boot/initrd.img-3.13.0-24-generic \
 #    -nographic \

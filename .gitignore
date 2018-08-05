@@ -5,3 +5,4 @@ iso-images
 tmp
 vmlinuz
 initrd.gz
+linuximage
