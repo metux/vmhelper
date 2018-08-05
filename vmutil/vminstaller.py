@@ -187,6 +187,7 @@ class VmInstallerDebian(VmInstallerBase):
 
         self.prepare_kernel()
 
+##        self.vm.set_property('sercon', 'yes')
         self.vm.set_property('append', self.kernel_param.__str__())
         self.vm.set_property('dtb', self.get_property('dtb'))
         self.vm.init_diskimages()

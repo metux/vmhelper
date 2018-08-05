@@ -17,8 +17,7 @@ class VmQemu:
         cmd.opt_arg('-dtb',       self.vm.get_property('dtb'))
         cmd.opt_arg('-k',         self.vm.get_property('keymap'))
         cmd.opt_sw('-enable-kvm', self.vm.get_property_bool('kvm'))
-
-        print "keymap:"+self.vm.get_property('keymap')
+        cmd.opt_sw(['-serial', 'mon:stdio', '-nographic'], self.vm.get_property_bool('sercon'))
 
         return cmd.args
 
