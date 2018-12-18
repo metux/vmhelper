@@ -5,25 +5,32 @@ QEMU=qemu-system-i386
 
 #KERNEL=/mnt/vmvol0/tmp/vm/devuan-jessie/vmlinuz
 KERNEL=linuximage
-ROOT=/var/chroot/devuan
+#ROOT=/var/chroot/devuan
+ROOT=/var/chroot/foo
 INITRD=/mnt/vmvol0/tmp/vm/devuan-jessie/initrd.gz
 CONSOLE=ttyS0
 #CONSOLE=hvc0
-INIT=/sh
+#INIT=/sh
+INIT=/sbin/init
 
 #PARAM_INITRD="-initrd $INITRD"
+
+#SECURITY_MODEL=mapped
+SECURITY_MODEL=passthrough
+#SECURITY_MODEL=mapped-xattr
 
 $QEMU \
     -enable-kvm \
     -kernel $KERNEL \
     $PARAM_INITRD \
-    -fsdev local,id=root9p,path=$ROOT,security_model=mapped \
+    -fsdev local,id=root9p,path=$ROOT,security_model=$SECURITY_MODEL \
     -device virtio-9p-pci,fsdev=root9p,mount_tag=/dev/root \
-    -fsdev local,id=npx,path=$ROOT,security_model=mapped \
+    -fsdev local,id=npx,path=$ROOT,security_model=$SECURITY_MODEL \
     -device virtio-9p-pci,fsdev=npx,mount_tag=npx \
-    -append "root=root9p rw rootfstype=9p rootflags=debug=0x04,trans=virtio,version=9p2000.L console=$CONSOLE init=$INIT" \
-    -serial mon:stdio \
-    -nographic
+    -append "root=root9p rw rootfstype=9p rootflags=debug=0x00,trans=virtio,version=9p2000.L console=$CONSOLE init=$INIT fastboot" \
+
+#    -serial mon:stdio \
+#    -nographic
 
 #    -console virtio \
 #    -append "console=ttyS0" \

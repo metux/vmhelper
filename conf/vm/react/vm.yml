@@ -1,0 +1,17 @@
+---
+name:    test1
+arch:    i386
+bootdev: cdrom
+memory:  1G
+kvm:     yes
+disks:
+  - type: raw-image
+    name: disk0
+    file: disk000.raw
+    size: 1G
+  - type: iso-image
+    name: cdrom0
+    file: react.iso
+
+installer:
+    template: debian-testing-i386-netinst
